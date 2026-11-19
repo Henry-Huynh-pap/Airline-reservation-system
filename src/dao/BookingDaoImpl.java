@@ -52,12 +52,49 @@ public class BookingDaoImpl implements BookingDao{
 
     @Override
     public List<Booking> findByPassengerId(int passengerId) {
-        return List.of();
+
+        List<Booking> list = new ArrayList<>();
+        String sql = "SELECT * FROM bookings WHERE passenger_id = ? "
+                   + "ORDER BY booking_time DESC";
+
+        try(Connection connection = DBConnection.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, passengerId);
+
+            try(ResultSet rs = ps.executeQuery()){
+                while(rs.next()){
+                    list.add(mapRow(rs));
+                }
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 
     @Override
     public List<String> findTakenSeats(int flightId) {
-        return List.of();
+
+        List<String> seats = new ArrayList<>();
+        String sql = "SELECT seat_number FROM bookings "
+                   + "WHERE flight_id = ? AND status = 'CONFIRMED'";
+
+        try(Connection connection = DBConnection.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, flightId);
+
+            try(ResultSet rs = ps.executeQuery()) {
+                while(rs.next()){
+                    seats.add(rs.getString("seat_number"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return seats;
     }
 
     private Booking mapRow(ResultSet rs) throws SQLException{
