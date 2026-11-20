@@ -97,6 +97,66 @@ public class BookingDaoImpl implements BookingDao{
         return seats;
     }
 
+    @Override
+    public boolean bookTicket(Booking booking){
+        String updateSql = "UPDATE flights SET available_seats = available_seats -1 "
+                         + "WHERE flight_id = ? AND available_seats > 0";
+        String insertSql = "INSERT INTO bookings "
+                         + "(flight_id, passenger_id, seat_number, ticket_class, price) "
+                         + "VALUES ( ?, ? , ?, ?::ticket_class_type, ?)";
+
+        Connection connection = null;
+        try{
+            connection = DBConnection.getConnection();
+            connection.setAutoCommit(false);
+
+            try(PreparedStatement psUpdate = connection.prepareStatement(updateSql)) {
+                psUpdate.setInt(1, booking.getFlightId());
+
+                int rows = psUpdate.executeUpdate();
+                if(rows == 0){
+                    connection.rollback();
+                    return false;
+                }
+            }
+
+            try(PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+                psInsert.setInt(1, booking.getFlightId());
+                psInsert.setInt(2, booking.getPassengerId());
+                psInsert.setString(3, booking.getSeatNumber());
+                psInsert.setString(4,booking.getTicketClass().name());
+                psInsert.setDouble(5, booking.getPrice());
+                psInsert.executeUpdate();
+            }
+
+            connection.commit();
+            return true;
+        }
+        catch(SQLException e) {
+            e.printStackTrace();
+
+            if(connection != null){
+                try{
+                    connection.rollback();
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+        }
+        finally{
+            if (connection != null){
+                try{
+                    connection.close();
+                } catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
     private Booking mapRow(ResultSet rs) throws SQLException{
         Booking b = new Booking();
         b.setBookingId(rs.getInt("booking_id"));
