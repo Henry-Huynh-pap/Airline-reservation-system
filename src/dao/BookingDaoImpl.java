@@ -156,6 +156,14 @@ public class BookingDaoImpl implements BookingDao{
         }
     }
 
+    @Override
+    public boolean cancelBooking(int bookingId){
+        String cancelSql = "UPDATE bookings SET status = 'CANCELLED' "
+                         + "WHERE booking_id = ? AND status = 'CONFIRMED'";
+
+
+    }
+
 
     private Booking mapRow(ResultSet rs) throws SQLException{
         Booking b = new Booking();

@@ -9,4 +9,5 @@ public interface BookingDao {
     List<Booking> findByPassengerId(int passengerId);
     List<String> findTakenSeats(int flightId);
     boolean bookTicket(Booking booking);
+    boolean cancelBooking(int bookingId);
 }
