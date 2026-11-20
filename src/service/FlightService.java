@@ -15,8 +15,7 @@ public class FlightService {
     }
 
     public List<Flight> getAllFlights() {
-        flightDao.findAll();
-        return null;
+        return flightDao.findAll();
     }
 
     public Flight getFlightById(int flightId){
@@ -34,6 +33,22 @@ public class FlightService {
     }
 
     public List<Flight> searchFlights(String origin, String destination, LocalDate date){
+        if(origin == null || origin.trim().isEmpty()) {
+            throw new IllegalArgumentException("Origin can't be empty");
+        }
+        else if(destination == null || destination.trim().isEmpty()) {
+            throw new IllegalArgumentException("Destination can't be empty");
+        }
+        else if(origin.trim().equalsIgnoreCase(destination.trim())){
+            throw new IllegalArgumentException("Origin can't be the same with destination");
+        }
+        else if(date == null){
+            throw new IllegalArgumentException("Date can't be empty");
+        }
+        else if(date.isBefore(LocalDate.now())){
+            throw new IllegalArgumentException("Date isn't valid");
+        }
 
+        return flightDao.search(origin.trim(),destination.trim(),date);
     }
 }
