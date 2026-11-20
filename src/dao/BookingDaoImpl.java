@@ -161,7 +161,57 @@ public class BookingDaoImpl implements BookingDao{
         String cancelSql = "UPDATE bookings SET status = 'CANCELLED' "
                          + "WHERE booking_id = ? AND status = 'CONFIRMED'";
 
+        String seatSql = "UPDATE flights SET available_seats = available_seats + 1 "
+                       + "WHERE flight_id = (SELECT flight_id FROM bookings WHERE booking_id = ?)";
 
+        Connection connection = null;
+
+        try{
+            connection = DBConnection.getConnection();
+            connection.setAutoCommit(false);
+
+            try(PreparedStatement psCancel = connection.prepareStatement(cancelSql)) {
+                psCancel.setInt(1, bookingId);
+
+                int rows = psCancel.executeUpdate();
+                if(rows == 0){
+                    connection.rollback();
+                    return false;
+                }
+            }
+
+            try(PreparedStatement psSeat = connection.prepareStatement(seatSql)) {
+                psSeat.setInt(1, bookingId);
+                psSeat.executeUpdate();
+            }
+
+            connection.commit();
+            return true;
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+
+            if(connection != null){
+                try{
+                    connection.rollback();
+                }
+                catch(SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+
+            return false;
+        }
+        finally {
+            if(connection != null){
+                try{
+                    connection.close();
+                }
+                catch(SQLException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 
