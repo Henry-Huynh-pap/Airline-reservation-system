@@ -36,16 +36,16 @@ public class FlightService {
         if(origin == null || origin.trim().isEmpty()) {
             throw new IllegalArgumentException("Origin can't be empty");
         }
-        else if(destination == null || destination.trim().isEmpty()) {
+        if(destination == null || destination.trim().isEmpty()) {
             throw new IllegalArgumentException("Destination can't be empty");
         }
-        else if(origin.trim().equalsIgnoreCase(destination.trim())){
+        if(origin.trim().equalsIgnoreCase(destination.trim())){
             throw new IllegalArgumentException("Origin can't be the same with destination");
         }
-        else if(date == null){
+        if(date == null){
             throw new IllegalArgumentException("Date can't be empty");
         }
-        else if(date.isBefore(LocalDate.now())){
+        if(date.isBefore(LocalDate.now())){
             throw new IllegalArgumentException("Date isn't valid");
         }
 

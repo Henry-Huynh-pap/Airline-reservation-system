@@ -27,6 +27,14 @@ public class Booking {
 
     }
 
+    public Booking(int flightId, int passengerId, String seatNumber, TicketClass ticketClass, double price) {
+        this.flightId = flightId;
+        this.passengerId = passengerId;
+        this.seatNumber = seatNumber;
+        this.ticketClass = ticketClass;
+        this.price = price;
+    }
+
     public int getBookingId() {
         return bookingId;
     }
